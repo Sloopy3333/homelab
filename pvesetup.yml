@@ -1,0 +1,13 @@
+- name: Proxmox host setup
+  hosts: pve
+  tags:
+    - pvesetup
+  roles:
+    - pve
+
+- name: Proxmox create cloudtempaltes
+  hosts: pve
+  tags:
+    - citemplates
+  roles:
+    - ci-templates

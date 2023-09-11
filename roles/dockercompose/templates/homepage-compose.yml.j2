@@ -1,0 +1,27 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  homepage:
+    container_name: {{ containers.homepage.name }}
+    image: {{ containers.homepage.image }}
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ docker_volume_dir }}/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homepage.tls=true
+      - traefik.http.routers.homepage.tls.certresolver=cloudflare
+      - traefik.http.routers.homepage.rule=Host(`{{ containers.homepage.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.homepage.entrypoints=websecure
+      - traefik.http.services.homepage.loadbalancer.server.port=3000
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

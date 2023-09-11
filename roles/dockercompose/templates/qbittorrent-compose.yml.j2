@@ -1,0 +1,41 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  qbittorrent:
+    container_name: {{ containers.qbittorrent.name }}
+    image: {{ containers.qbittorrent.image }}
+    environment:
+      - WEBUI_PORT=8080
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/qbittorrent:/config
+      - downloads:/downloads
+      - share:/mnt/share
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.qbittorrent.tls=true
+      - traefik.http.routers.qbittorrent.tls.certresolver=cloudflare
+      - traefik.http.routers.qbittorrent.rule=Host(`{{ containers.qbittorrent.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.qbittorrent.entrypoints=websecure
+      - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  downloads:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_downloads_dir }}"
+  share:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_share_dir }}"

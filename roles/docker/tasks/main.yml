@@ -1,0 +1,35 @@
+---
+# tasks file for docker
+- name: Install docker
+  shell:
+    cmd: "curl -fsSL https://get.docker.com | sudo bash /dev/stdin"
+    creates: /usr/bin/docker
+  notify:
+    - enable docker
+  become: true
+
+- name: Add user to Docker group
+  user:
+    name: "{{ ansible_user_id }}"
+    group: docker
+    state: present
+  become: true
+
+- name: Install pip
+  package:
+    name: 
+      - python3-pip
+      - nfs-common
+    state: present
+  become: true
+
+- name: Install docker sdk
+  pip:
+    name: 
+      - docker
+      - docker-compose
+    state: present
+  
+- name: Reset ssh connection to allow user changes to affect ansible user
+  ansible.builtin.meta:
+    reset_connection

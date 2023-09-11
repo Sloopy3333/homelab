@@ -1,0 +1,28 @@
+---
+# tasks file for dockercompose
+- name: create docker base directory
+  file:
+    dest: "{{ docker_base_dir | default('{{ ansible_user_dir }}/docker') }}"
+    state: directory
+
+- name: Create docker compose template directory
+  file:
+    dest: "{{ docker_compose_dir_remote | default('{{ docker_base_dir }}/compose') }}"
+    state: directory
+
+- name: Create docker volumes directory
+  file:
+    dest: "{{ docker_volume_dir | default('{{ docker_base_dir }}/volumes') }}"
+    state: directory
+
+- name: Copy docker compose templates
+  template:
+    src: "{{ item }}.j2"
+    #dest: "{{ compose_dir }}/{{ item | basename | regex_replace('.j2$', '') }}"
+    dest: "{{ docker_compose_dir_remote }}/{{ item }}"
+  with_items: "{{ docker_compose_templates }}"
+
+- name: Deploy Docker Compose stack
+  docker_compose:
+    project_src: "{{ docker_compose_dir_remote }}"
+    files: "{{ docker_compose_templates }}"

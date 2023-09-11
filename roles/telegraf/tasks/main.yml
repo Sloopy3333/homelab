@@ -1,0 +1,25 @@
+---
+# tasks file for roles/telegraf
+- name: Install dependencies
+  apt:
+    name: "{{ telegraf_dependencies }}"
+    state: present
+  become: true
+  
+- name: Download debian package
+  get_url: 
+    url: "{{ telegraf_deb_url }}"
+    dest: "/tmp/{{ telegraf_deb_url | basename }}"
+
+- name: Install telegraf
+  apt:
+    deb: "/tmp/{{ telegraf_deb_url | basename }}"
+    state: present
+  become: true
+
+- name: Start telegraf service
+  systemd:
+    name: telegraf
+    state: started
+    enabled: true
+  become: true

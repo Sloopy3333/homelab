@@ -1,0 +1,59 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  nextcloud:
+    container_name: {{ containers.nextcloud.name }}
+    image: {{ containers.nextcloud.image }}
+    links:
+      - {{ containers.nextcloud_db.name }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.nextcloud.name }}:/config
+      - nextcloud:/data
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ timezone }}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.tls=true
+      - traefik.http.routers.nextcloud.tls.certresolver=cloudflare
+      - traefik.http.routers.nextcloud.rule=Host(`{{ containers.nextcloud.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.nextcloud.entrypoints=websecure
+      - traefik.http.services.nextcloud.loadbalancer.server.port=80
+    depends_on:
+      - nextcloud_db
+    networks:
+      - {{ containers.traefik.network }}
+      - nextcloud
+    restart: unless-stopped
+
+  nextcloud_db:
+    container_name: {{ containers.nextcloud_db.name }}
+    image: {{ containers.nextcloud_db.image }}
+    volumes: 
+      - {{ docker_volume_dir }}/nextcloud_db:/config
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ timezone }}
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud #optional
+      - MYSQL_USER=nextcloud #optional
+      - MYSQL_PASSWORD=nextcloud #optional
+    networks:
+      - nextcloud
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+  nextcloud:
+    name: nextcloud
+
+volumes: 
+  nextcloud:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_nextcloud_dir }}"
+      

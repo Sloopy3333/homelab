@@ -1,0 +1,34 @@
+---
+# tasks file for roles/grafana
+- name: Install dependencies
+  apt:
+    name: "{{ grafana_dependencies }}"
+    state: present
+  become: true
+  
+- name: Add grafana apt keyring
+  apt_key:
+    url: "{{ grafana_apt_key }}"
+    keyring: "/usr/share/keyrings/grafana.key"
+    state: present
+  become: true
+
+- name: Add grafana apt repo
+  apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/grafana.key] {{ grafana_apt_repo }} stable main
+    state: present
+  become: true
+
+- name: Install grafana
+  apt: 
+    name: grafana
+    state: present
+    update-cache: true
+  become: true
+
+- name: Start grafana service
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: true
+  become: true

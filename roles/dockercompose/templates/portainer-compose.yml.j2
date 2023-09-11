@@ -1,0 +1,23 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  portainer:
+    container_name: {{ containers.portainer.name }}
+    image: {{ containers.portainer.image }}
+    volumes: 
+        - /var/run/docker.sock:/var/run/docker.sock
+        - {{ docker_volume_dir }}/{{ containers.portainer.name }}:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.tls=true
+      - traefik.http.routers.portainer.tls.certresolver=cloudflare
+      - traefik.http.routers.portainer.rule=Host(`{{ containers.portainer.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.portainer.entrypoints=websecure
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

@@ -1,0 +1,28 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  guacamole:
+    container_name: {{ containers.guacamole.name }}
+    image: {{ containers.guacamole.image }}
+    #environment:
+    #  - tz={{ timezone }}
+    #  - puid={{ uid }}
+    #  - pgid={{ gid }}
+    #  - default_workspace=/config/workspace
+    #  - password={{ generic_password }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.guacamole.name }}:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.guacamole.tls=true
+      - traefik.http.routers.guacamole.tls.certresolver=cloudflare
+      - traefik.http.routers.guacamole.rule=host(`{{ containers.guacamole.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.guacamole.entrypoints=websecure
+      - traefik.http.services.guacamole.loadbalancer.server.port=8080
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

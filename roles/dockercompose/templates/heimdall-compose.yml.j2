@@ -1,0 +1,26 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  heimdall:
+    container_name: {{ containers.heimdall.name }}
+    image: {{ containers.heimdall.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.heimdall.name }}:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.heimdall.tls=true
+      - traefik.http.routers.heimdall.tls.certresolver=cloudflare
+      - traefik.http.routers.heimdall.rule=Host(`{{ containers.heimdall.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.heimdall.entrypoints=websecure
+      - traefik.http.services.heimdall.loadbalancer.server.port=80
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

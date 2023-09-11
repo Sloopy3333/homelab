@@ -1,0 +1,25 @@
+version: {{ docker_compose_version }}
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    user: "{{ ansible_user_uid}}:{{ ansible_user_gid }}"
+    volumes:
+      - {{ docker_volume_dir }}/prometheus:/etc/prometheus
+      - {{ docker_volume_dir }}/prometheus_data:/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    user: '0'
+    ports:
+      - '3000:3000'
+    # adding the mount volume point which we create earlier
+    volumes:
+      - {{ docker_volume_dir }}/grafana:/var/lib/grafana

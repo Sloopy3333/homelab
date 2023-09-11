@@ -1,0 +1,26 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  privatebin:
+    container_name: {{ containers.privatebin.name }}
+    image: {{ containers.privatebin.image }}
+    environment:
+      - TZ={{ timezone }}
+      - puid=65534 
+      - pgid=82
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.privatebin.name }}:/srv
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.privatebin.tls=true
+      - traefik.http.routers.privatebin.tls.certresolver=cloudflare
+      - traefik.http.routers.privatebin.rule=host(`{{ containers.privatebin.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.privatebin.entrypoints=websecure
+      - traefik.http.services.privatebin.loadbalancer.server.port=8080
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

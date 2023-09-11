@@ -1,0 +1,10 @@
+---
+# vars file for roles/influxdb
+influxdb_dependencies:
+  - apt-transport-https
+  - adduser
+  - ca-certificates
+  - libfontconfig
+  - gnupg2
+
+influxdb_deb_url: "https://dl.influxdata.com/influxdb/releases/influxdb2-2.7.0-amd64.deb"

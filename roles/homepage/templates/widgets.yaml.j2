@@ -1,0 +1,16 @@
+- search:
+    provider: custom
+    url: https://searx.{{ local_subdomain }}/?q=
+    target: _blank
+
+- openmeteo:
+    latitude: {{ weather_latitude }}
+    longitude: {{ weather_longitude }}
+    units: metric
+
+- datetime:
+    text_size: xl
+    format:
+        dateStyle: short
+        timeStyle: short
+        hour12: true

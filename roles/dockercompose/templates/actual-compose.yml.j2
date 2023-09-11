@@ -1,0 +1,22 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  actual:
+    container_name: {{ containers.actual.name }}
+    image: {{ containers.actual.image }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.actual.name }}:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.actual.tls=true
+      - traefik.http.routers.actual.tls.certresolver=cloudflare
+      - traefik.http.routers.actual.rule=Host(`{{ containers.actual.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.actual.entrypoints=websecure
+      - traefik.http.services.actual.loadbalancer.server.port=5006
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

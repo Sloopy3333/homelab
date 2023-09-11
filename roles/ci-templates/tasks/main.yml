@@ -1,0 +1,61 @@
+---
+# tasks file for vmtemplates
+- name: Install depencencies
+  apt:
+    name: "{{ pve_dependencies }}"
+    state: present
+
+- name: Add cloudinit snippets storage
+  shell:
+    cmd: "pvesm add dir {{ cloudinit_storage }} --path {{ cloudinit_storage_path }} --content snippets"
+    creates: "{{ cloudinit_storage_path }}/snippets"
+
+- name: Copy cloud-init templates
+  template:
+    src: default_ci.yml.j2
+    dest: "{{ cloudinit_storage_path }}/snippets/ci-default.yml"
+
+- name: Copy cloud images
+  copy:
+    src: "{{ item.value.image }}"
+    dest: "{{ pve_iso_dir }}/{{ item.value.image }}"
+  with_items:
+    "{{ templates | dict2items }}"
+  
+- name: Create vm template
+  proxmox_kvm:
+    api_host: "{{ ansible_default_ipv4.address }}"
+    node: "{{ ansible_hostname }}"
+    api_user: "{{ pve_api_user }}"
+    api_token_id : "{{ pve_api_id }}"
+    api_token_secret : "{{ pve_api_secret }}"
+    name: "{{ item.value.name }}"
+    vmid: "{{ item.value.vmid }}"
+    cpu: host
+    cores: 2
+    memory: 2048
+    scsihw: virtio-scsi-single
+    boot: c
+    bootdisk: scsi0
+    ide:
+      ide2: 'local-lvm:cloudinit,format=raw'
+    net:
+      net0: 'virtio,bridge=vmbr0'
+      net1: 'virtio,bridge=vmbr1'
+    ipconfig:
+      ipconfig0: "ip=dhcp"
+    cicustom: "user={{ cloudinit_storage }}:snippets/ci-default.yml"
+    agent: true
+    template: true
+    tags: "{{ item.value.tags }}"
+    proxmox_default_behavior: "no_defaults"
+    state: present
+  with_items: 
+    "{{ templates | dict2items }}"
+
+- name: Import disk
+  shell:
+    cmd: qm set {{ item.value.vmid }} --scsi0 local-lvm:0,import-from={{ pve_iso_dir }}/{{ item.value.image }}
+    creates: "/dev/mapper/pve-vm--{{ item.value.vmid }}--disk--0"
+  with_items: 
+    "{{ templates | dict2items }}"

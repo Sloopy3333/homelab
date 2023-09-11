@@ -1,0 +1,76 @@
+http:
+  routers:
+
+    traefik-dashboard:
+      entrypoints:
+        - websecure
+      service: api@internal
+      rule: "Host(`traefik.{{ local_subdomain }}`)"
+      middlewares:
+        - basic-auth
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+        domains:
+          - main: "{{ local_subdomain }}"
+            sans:
+              - "*.{{ local_subdomain }}"
+
+    xoa:
+      entrypoints:
+        - websecure
+      service: xoa
+      rule: "Host(`xoa.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    truenas:
+      entrypoints:
+        - websecure
+      service: truenas
+      rule: "Host(`truenas.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    pihole:
+      entrypoints:
+        - websecure
+      service: pihole
+      rule: "Host(`pihole.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+      middlewares:
+        - pihole-redirectregex
+        - pihole-addprefix
+      
+  services:
+
+    xoa:
+      loadBalancer:
+          servers:
+            - url: "http://hostvars[groups['xo'][0]]['ansible_hosts']"
+
+    truenas:
+      loadBalancer:
+          servers:
+            - url: "http://hostvars[groups['nas'][0]]['ansible_hosts']"
+
+    pihole:
+      loadBalancer:
+          servers:
+            - url: "http://hostvars[groups['dns'][0]]['ansible_hosts']"
+
+  middlewares:
+
+    basic-auth:
+      basicAuth:
+        users:
+          - "{{ basic_auth }}"
+
+    pihole-addprefix:
+      addPrefix:
+        prefix: /admin
+
+    pihole-redirectregex:
+      redirectRegex:
+        regex: /admin/$
+        replacement: /     

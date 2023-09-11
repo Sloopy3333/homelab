@@ -1,0 +1,26 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  freshrss:
+    container_name: {{ containers.freshrss.name }}
+    image: {{ containers.freshrss.image }}
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ timezone }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.freshrss.name }}:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.freshrss.tls=true
+      - traefik.http.routers.freshrss.tls.certresolver=cloudflare
+      - traefik.http.routers.freshrss.rule=Host(`{{ containers.freshrss.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.freshrss.entrypoints=websecure
+      - traefik.http.services.freshrss.loadbalancer.server.port=80
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

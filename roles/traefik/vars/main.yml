@@ -1,0 +1,15 @@
+---
+# vars file for roles/traefik
+traefik_binary_src: "https://github.com/traefik/traefik/releases/download/v2.10.4/traefik_v2.10.4_linux_amd64.tar.gz"
+traefik_binary_dest: "/usr/bin"
+
+traefik_user: "{{ ci_user }}"
+user_config_dir: "/home/{{ traefik_user }}/.config"
+traefik_config_dir: "{{ user_config_dir }}/traefik"
+traefik_config_file: "{{ traefik_config_dir }}/traefik.yml"
+traefik_acme_file: "{{ traefik_config_dir }}/acme.json"
+traefik_file_provider: "{{ traefik_config_dir }}/provider.yml"
+traefik_log_dir: "/var/log"
+
+traefik_resolver_name: "cloudflare"
+traefik_resolver_provider: "cloudflare"

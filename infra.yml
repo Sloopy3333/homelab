@@ -1,0 +1,72 @@
+- name: DNS
+  hosts: dns
+  tags: 
+    - dns
+  roles:
+    - pibound
+
+- name: Proxy
+  hosts: proxy
+  tags:
+    - proxy
+  vars:
+    docker_compose_templates:
+      - traefik-compose.yml
+  roles:
+    - docker
+    - dockercompose
+    - traefik
+
+- name: Services
+  hosts: services
+  tags:
+    - services
+
+  vars:
+    docker_compose_templates:
+      - homepage-compose.yml
+      - portainer-compose.yml
+      - nextcloud-compose.yml
+      - vaultwarden-compose.yml
+      - codeserver-compose.yml
+      - gitea-compose.yml
+      - pyload-compose.yml
+      - jellyfin-compose.yml
+      - qbittorrent-compose.yml
+      - guacamole-compose.yml
+      - microbin-compose.yml
+      - searx-compose.yml
+      - actual-compose.yml
+      - snipeit-compose.yml
+      - freshrss-compose.yml
+      - arr-compose.yml
+  roles:
+    - docker
+    - dockercompose
+
+- name: Homepage
+  hosts: services
+  tags:
+    - homepage
+  vars:
+    docker_compose_templates:
+      - homepage-compose.yml
+  roles:
+    - docker
+    - dockercompose
+    - homepage
+
+- name: Monitoring
+  hosts: watcher
+  tags:
+    - monitoring
+  roles:
+    - grafana
+    - influxdb
+
+- name: Telegraf
+  hosts: telegraf
+  tags: 
+    - telegraf
+  roles:
+    - telegraf

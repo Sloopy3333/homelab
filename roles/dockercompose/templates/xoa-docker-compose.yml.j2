@@ -1,0 +1,30 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  xen-orchestra:
+    image: ronivay/xen-orchestra:latest
+    container_name: xen-orchestra
+    ports:
+      - 80:80
+      - 443:443
+    stop_grace_period: 1m
+    environment:
+        - HTTP_PORT=80
+        - HTTPS_PORT=443
+    # capabilities are needed for NFS/SMB mount
+    cap_add:
+      - SYS_ADMIN
+      - DAC_READ_SEARCH
+    # additional setting required for apparmor enabled systems. also needed for NFS mount
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - {{ docker_volume_dir }}/xoa:/var/lib/xo-server
+      - {{ docker_volume_dir }}/redis:/var/lib/redis
+    # logging
+    logging: &default_logging
+        driver: "json-file"
+        options:
+            max-size: "1M"
+            max-file: "2"
+    restart: unless-stopped

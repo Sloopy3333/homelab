@@ -1,0 +1,91 @@
+ansible_user: "{{ ci_user }}"
+ansible_ssh_private_key_file: tmp/privatekey
+
+nfs_server_address: "10.1.3.112"
+
+
+#docker_base_dir: "{{ ansible_user_dir }}/docker"
+#docker_volume_dir: "{{ docker_base_dir }}/volumes"
+#docker_compose_dir_remote: "{{ docker_base_dir }}/compose"
+#docker_compose_dir_local: "./templates"
+#docker_compose_version: "3.8"
+#
+#node_exporter_version: "1.6.1"
+#node_exporter_bin: /usr/local/bin/nodeexporter
+#node_exporter_user: nodeexporter
+#node_exporter_config_dir: /etc/nodeexporter
+
+#nfs_nextcloud_dir: "/mnt/tank/nextcloud"
+#nfs_vaultwarden_dir: "/mnt/tank/vaultwarden"
+#nfs_downloads_dir: "/mnt/tank/media/downloads"
+#nfs_movies_dir: "/mnt/tank/media/movies"
+#nfs_shows_dir: "/mnt/tank/media/shows"
+#nfs_gitea_dir: "/mnt/tank/git/repo"
+#nfs_code_dir: "/mnt/tank/git/code"
+
+#timezone: "Asia/Kolkata"
+#uid: "1000"
+#gid: "3000"
+
+#containers:
+#  traefik: 
+#    name: "traefik"
+#    image: "traefik:latest"
+#    auth: "{{ traefik_auth }}"
+#    network: "traefik"
+#  nextcloud: 
+#    name: "nextcloud"
+#    image: "lscr.io/linuxserver/nextcloud:latest"
+#  nextcloud_db:
+#    name: "nextcloud_db"
+#    image: "lscr.io/linuxserver/mariadb:latest"
+#  vaultwarden:
+#    name: "vaultwarden"
+#    image: "vaultwarden/server:latest"
+#  jellyfin:
+#    name: "jellyfin"
+#    image: "lscr.io/linuxserver/jellyfin:latest"
+#  qbittorrent:
+#    name: "qbittorrent"
+#    image: "lscr.io/linuxserver/qbittorrent:latest"
+#  flaresolverr:
+#    name: "flaresolverr"
+#    image: " flaresolverr/flaresolverr:latest"
+#  prowlarr:
+#    name: "prowlarr"
+#    image: "lscr.io/linuxserver/prowlarr:latest"
+#  sonarr:
+#    name: "sonarr"
+#    image: "lscr.io/linuxserver/sonarr:latest"
+#  radarr:
+#    name: "radarr"
+#    image: "lscr.io/linuxserver/radarr:latest"
+#  bazarr:
+#    name: "bazarr"
+#    image: "lscr.io/linuxserver/bazarr:latest"
+#  jellyseer:
+#    name: "jellyseer"
+#    image: "fallenbagel/jellyseerr:latest"
+#  heimdall:
+#    name: "heimdall"
+#    image: "lscr.io/linuxserver/heimdall:latest"
+#  code:
+#    name: "code"
+#    image: "lscr.io/linuxserver/code-server:latest"
+#  gitea:
+#    name: "gitea"
+#    image: "gitea/gitea:latest"
+#  jackett:
+#    name: "jackett"
+#    image: "lscr.io/linuxserver/jackett:latest"
+#
+#
+#
+#
+#
+#
+#
+#  
+#
+#
+#

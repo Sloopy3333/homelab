@@ -1,0 +1,51 @@
+# Global configuration
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+# Traefik logs
+log:
+  level: ERROR
+  filePath: {{ traefik_log_dir }}/traefik
+  format: json
+
+# Access logs 
+accessLog:
+  filePath: {{ traefik_log_dir }}/traefik-access
+  format: json
+
+# Enable API and dashboard
+api:
+  insecure: true
+  dashboard: true
+
+# Enable ping
+ping:
+  entryPoint: traefik
+
+# EntryPoints definition
+entryPoints:
+  web:
+    address: :80
+
+  websecure:
+    address: :443
+
+# Certificate resolvers
+certificatesResolvers:
+  {{ traefik_resolver_name }}:
+    acme:
+      email: {{ cf_api_email }}
+      storage: {{ traefik_acme_file }}
+      dnsChallenge:
+        provider: {{ traefik_resolver_provider }}
+        resolvers: 
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+
+# Providers
+providers:
+  providersThrottleDuration: 2s
+  file: 
+    filename: {{ traefik_file_provider }}
+    watch: true

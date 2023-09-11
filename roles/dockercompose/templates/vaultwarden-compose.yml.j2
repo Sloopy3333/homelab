@@ -1,0 +1,30 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  vaultwarden:
+    container_name: {{ containers.vaultwarden.name }}
+    image: {{ containers.vaultwarden.image }}
+    volumes: 
+      - vaultwarden:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vaultwarden.tls=true
+      - traefik.http.routers.vaultwarden.tls.certresolver=cloudflare
+      - traefik.http.routers.vaultwarden.rule=Host(`{{ containers.vaultwarden.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.vaultwarden.entrypoints=websecure
+      - traefik.http.services.vaultwarden.loadbalancer.server.port=80
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  vaultwarden:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_vaultwarden_dir }}"
+      

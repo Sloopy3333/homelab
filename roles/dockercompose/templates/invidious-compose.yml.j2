@@ -1,0 +1,66 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  invidious:
+    container_name: {{ containers.invidious.name }}
+    image: {{ containers.invidious.image }}
+    environment:
+      # Please read the following file for a comprehensive list of all available
+      # configuration options and their associated syntax:
+      # https://github.com/iv-org/invidious/blob/master/config/config.example.yml
+      INVIDIOUS_CONFIG: |
+        db:
+          dbname: invidious
+          user: invidious
+          password: invidious
+          host: invidious_db
+          port: 5432
+        check_tables: true
+        # external_port:
+        # domain:
+        https_only: true
+        # statistics_enabled: false
+        hmac_key: "{{ generic_password }}"
+    healthcheck:
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 2
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.invidious.tls=true
+      - traefik.http.routers.invidious.tls.certresolver=cloudflare
+      - traefik.http.routers.invidious.rule=host(`{{ containers.invidious.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.invidious.entrypoints=websecure
+      - traefik.http.services.invidious.loadbalancer.server.port=3000
+    depends_on:
+      - invidious_db
+    networks:
+      - {{ containers.traefik.network }}
+      - invidious
+    restart: unless-stopped
+
+
+
+  invidious_db:
+    container_name: {{ containers.invidious_db.name }}
+    image: {{ containers.invidious_db.image }}
+    volumes: 
+      - {{ docker_volume_dir }}/invidious_db:/config
+    environment:
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - TZ={{ timezone }}
+      - MYSQL_ROOT_PASSWORD=invidious
+      - MYSQL_DATABASE=invidious #optional
+      - MYSQL_USER=invidious #optional
+      - MYSQL_PASSWORD=invidious #optional
+    networks:
+      - invidious
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+  invidious:
+    name: invidious

@@ -1,0 +1,35 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  gitea:
+    container_name: {{ containers.gitea.name }}
+    image: {{ containers.gitea.image }}
+    environment:
+      - USER_UID={{ uid }}
+      - USER_GID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.gitea.name }}:/data
+      - gitea:/data/git
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.gitea.tls=true
+      - traefik.http.routers.gitea.tls.certresolver=cloudflare
+      - traefik.http.routers.gitea.rule=Host(`{{ containers.gitea.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.gitea.entrypoints=websecure
+      - traefik.http.services.gitea.loadbalancer.server.port=3000
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  gitea:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_gitea_dir }}"

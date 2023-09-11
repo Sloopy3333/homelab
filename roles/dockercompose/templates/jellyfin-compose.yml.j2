@@ -1,0 +1,42 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  jellyfin:
+    container_name: {{ containers.jellyfin.name }}
+    image: {{ containers.jellyfin.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    ports:
+      - 8096:8096
+    volumes:
+      - {{ docker_volume_dir }}/jellyfin:/config
+      - shows:/data/tvshows
+      - movies:/data/movies
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.tls.certresolver=cloudflare
+      - traefik.http.routers.jellyfin.rule=Host(`{{ containers.jellyfin.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.jellyfin.entrypoints=websecure
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  movies:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_movies_dir }}"
+  shows:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_shows_dir }}"

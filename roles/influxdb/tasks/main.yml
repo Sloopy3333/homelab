@@ -1,0 +1,26 @@
+---
+# tasks file for roles/influxdb
+
+- name: Install dependencies
+  apt:
+    name: "{{ influxdb_dependencies }}"
+    state: present
+  become: true
+  
+- name: Download debian package
+  get_url: 
+    url: "{{ influxdb_deb_url }}"
+    dest: "/tmp/{{ influxdb_deb_url | basename }}"
+
+- name: Install Influxdb
+  apt:
+    deb: "/tmp/{{ influxdb_deb_url | basename }}"
+    state: present
+  become: true
+
+- name: Start influxdb service
+  systemd:
+    name: influxdb
+    state: started
+    enabled: true
+  become: true

@@ -1,0 +1,39 @@
+---
+# vars file for vmtemplates
+pve_dependencies: 
+  - python3-proxmoxer
+  - python3-requests
+
+cloudinit_storage: cloudinit
+cloudinit_storage_path: /var/lib/vz/template
+
+pve_iso_dir: /var/lib/vz/template/iso
+
+templates:
+  # https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
+  debian:
+    name: debian-12-cloudimage
+    vmid: 9001
+    image: debian-12-genericcloud-amd64.qcow2
+    tags: ["debian-12", "cloudinit"]
+  # https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+  ubuntu:
+    name: ubuntu-22.04-cloudimage
+    vmid: 9002
+    image: jammy-server-cloudimg-amd64.img
+    tags: ["ubuntu-22.04", "cloudinit"]
+  # https://access.redhat.com/downloads/content/rhel
+  rhel:
+    name: rhel-9.2-cloudimage
+    vmid: 9003
+    image: rhel-9.2-x86_64-kvm.qcow2
+    tags: ["rhel-9.2", "cloudinit"]
+  # https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.aarch64-1.0.0-NoCloud-Build1.71.qcow2
+  #suse:
+  #  name: opensuse-15.5-template
+  #  vmid: 9004
+  #  image: openSUSE-Leap-15.5.aarch64-1.0.0-NoCloud-Build1.71.qcow2
+  #  tags: ["opensuse-15.5", "cloudinit"]
+
+
+

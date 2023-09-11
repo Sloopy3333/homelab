@@ -1,0 +1,14 @@
+---
+# handlers file for roles/traefik
+- name: Reload systemctl daemon
+  systemd:
+    daemon_reload: yes
+  become: true
+  listen: daemon reload
+
+- name: Restart traefik service
+  systemd: 
+    name: traefik.service
+    state: restarted
+  become: true
+  listen: traefik restart

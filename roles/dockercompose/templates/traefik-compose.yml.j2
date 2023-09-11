@@ -1,0 +1,51 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  traefik:
+    container_name: {{ containers.traefik.name }}
+    image: traefik:latest
+    command:
+      - --log.level=DEBUG
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --serversTransport.insecureSkipVerify=true
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --providers.file.filename=/config/config.yml
+      - --entrypoints.websecure.http.tls.certresolver=cloudflare
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.delaybeforecheck=20
+      - --certificatesresolvers.cloudflare.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.cloudflare.acme.email={{ cf_api_email }}
+      - --certificatesresolvers.cloudflare.acme.storage=/letsencrypt/acme.json
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ docker_volume_dir }}/acme:/letsencrypt
+      - {{ docker_volume_dir }}/{{ containers.traefik.name }}:/config:ro
+    labels:
+      - traefki.enable=true
+      - traefik.http.routers.traefik-dashboard.tls=true
+      - traefik.http.routers.traefik-dashboard.rule=Host(`{{ containers.traefik.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.traefik-dashboard.tls.certresolver=cloudflare
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+      - traefik.http.routers.traefik-dashboard.tls.domains[0].main={{ local_subdomain }}
+      - traefik.http.routers.traefik-dashboard.tls.domains[0].sans= *.{{ local_subdomain }} 
+      - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth
+      - traefik.http.middlewares.traefik-auth.basicauth.users={{ containers.traefik.auth }}
+    environment:
+      - CF_API_EMAIL={{ cf_api_email }}
+      - CF_API_KEY={{ cf_api_key }}
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  traefik:
+    name: {{ containers.traefik.network }}

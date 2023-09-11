@@ -1,0 +1,72 @@
+---
+# tasks file for roles/traefik
+
+#- name: Download Traefik binary
+#  unarchive:
+#    src: "{{ traefik_binary_src }}"
+#    dest: "{{ traefik_binary_dest }}"
+#    remote_src: true
+#  become: true
+#
+#- name: Add capablity to bind privilaged
+#  capabilities:
+#    path: "{{ traefik_binary_dest }}/traefik"
+#    capability: "cap_net_bind_service=+ep"
+#    state: present
+#  become: true
+#  changed_when: false
+#
+#- name: Create user config dir
+#  file:
+#    path: "/home/{{ traefik_user }}/.config"
+#    state: directory
+#    owner: "{{ traefik_user }}"
+#    group: "{{ traefik_user }}"
+#  become: true
+#  
+#- name: Create Traefik config dir
+#  file:
+#    path: "{{ traefik_config_dir }}"
+#    state: directory
+#    owner: "{{ traefik_user }}"
+#    group: "{{ traefik_user }}"
+#
+#- name: Copy Traefik systemd service
+#  template:
+#    src: traefik.service.j2
+#    dest: /etc/systemd/system/traefik.service
+#    owner: "{{ traefik_user }}"
+#    group: "{{ traefik_user }}"
+#  become: true
+#  notify: 
+#  - daemon reload
+#  - traefik restart
+#
+#- name: Copy Traefik config
+#  template:
+#    src: traefik.yml.j2
+#    dest: "{{ traefik_config_file }}"
+#    owner: "{{ traefik_user }}"
+#    group: "{{ traefik_user }}"
+#  notify: 
+#    - traefik restart
+#
+#- name: Copy Traefik file provider
+#  template:
+#    src: provider.yml.j2
+#    dest: "{{ traefik_file_provider }}"
+#    owner: "{{ traefik_user }}"
+#    group: "{{ traefik_user }}"
+#
+#- name: Enable traefik service
+#  systemd:
+#    name: traefik.service
+#    state: started
+#    enabled: true
+#  become: true
+
+- name: copy traefik provider config
+  template:
+    src: traefik-provider.yml.j2
+    dest: "{{docker_volume_dir}}/traefik/config.yml"
+  become: true

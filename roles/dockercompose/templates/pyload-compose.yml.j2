@@ -1,0 +1,30 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  pyload:
+    container_name: {{ containers.pyload.name }}
+    image: {{ containers.pyload.image }}
+    volumes: 
+        - {{ docker_volume_dir }}/{{ containers.pyload.name }}:/config
+        - share:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pyload.tls=true
+      - traefik.http.routers.pyload.tls.certresolver=cloudflare
+      - traefik.http.routers.pyload.rule=Host(`{{ containers.pyload.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.pyload.entrypoints=websecure
+      - traefik.http.services.pyload.loadbalancer.server.port=8000
+    networks:
+      - {{ containers.traefik.network }}
+    restart: on-failure
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  share:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_share_dir }}"

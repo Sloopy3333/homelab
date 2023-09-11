@@ -1,0 +1,11 @@
+---
+# vars file for roles/grafana
+grafana_dependencies:
+  - apt-transport-https
+  - adduser
+  - ca-certificates
+  - libfontconfig
+  - gnupg2
+
+grafana_apt_key: "https://apt.grafana.com/gpg.key"
+grafana_apt_repo: "	https://apt.grafana.com stable main"

@@ -1,0 +1,195 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  #jellyfin:
+  #  container_name: {{ containers.jellyfin.name }}
+  #  image: {{ containers.jellyfin.image }}
+  #  environment:
+  #    - TZ={{ timezone }}
+  #    - PUID={{ uid }}
+  #    - PGID={{ gid }}
+  #  ports:
+  #    - 8096:8096
+  #  volumes:
+  #    - {{ docker_volume_dir }}/jellyfin:/config
+  #    - shows:/data/tvshows
+  #    - movies:/data/movies
+  #  labels:
+  #    - traefik.enable=true
+  #    - traefik.http.routers.jellyfin.tls=true
+  #    - traefik.http.routers.jellyfin.tls.certresolver=cloudflare
+  #    - traefik.http.routers.jellyfin.rule=Host(`{{ containers.jellyfin.name }}.{{ local_subdomain }}`)
+  #    - traefik.http.routers.jellyfin.entrypoints=websecure
+  #    - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+  #  networks:
+  #    - {{ containers.traefik.network }}
+  #  restart: unless-stopped
+
+  #qbittorrent:
+  #  container_name: {{ containers.qbittorrent.name }}
+  #  image: {{ containers.qbittorrent.image }}
+  #  environment:
+  #    - WEBUI_PORT=8080
+  #    - TZ={{ timezone }}
+  #    - PUID={{ uid }}
+  #    - PGID={{ gid }}
+  #  volumes:
+  #    - {{ docker_volume_dir }}/qbittorrent:/config
+  #    - downloads:/downloads
+  #  labels:
+  #    - traefik.enable=true
+  #    - traefik.http.routers.qbittorrent.tls=true
+  #    - traefik.http.routers.qbittorrent.tls.certresolver=cloudflare
+  #    - traefik.http.routers.qbittorrent.rule=Host(`{{ containers.qbittorrent.name }}.{{ local_subdomain }}`)
+  #    - traefik.http.routers.qbittorrent.entrypoints=websecure
+  #    - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
+  #  networks:
+  #    - {{ containers.traefik.network }}
+  #  restart: unless-stopped
+
+  flaresolverr:
+    container_name: {{ containers.flaresolverr.name }}
+    image: {{ containers.flaresolverr.image }}
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.flaresolverr.tls=true
+      - traefik.http.routers.flaresolverr.tls.certresolver=cloudflare
+      - traefik.http.routers.flaresolverr.rule=Host(`{{ containers.flaresolverr.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.flaresolverr.entrypoints=websecure
+      - traefik.http.services.flaresolverr.loadbalancer.server.port=8191
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+  prowlarr:
+    container_name: {{ containers.prowlarr.name }}
+    image: {{ containers.prowlarr.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/prowlarr:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prowlarr.tls=true
+      - traefik.http.routers.prowlarr.tls.certresolver=cloudflare
+      - traefik.http.routers.prowlarr.rule=Host(`{{ containers.prowlarr.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.prowlarr.entrypoints=websecure
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+  sonarr:
+    container_name: {{ containers.sonarr.name }}
+    image: {{ containers.sonarr.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/sonarr:/config
+      - shows:/tv #optional
+      - downloads:/downloads #optional
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sonarr.tls=true
+      - traefik.http.routers.sonarr.tls.certresolver=cloudflare
+      - traefik.http.routers.sonarr.rule=Host(`{{ containers.sonarr.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.sonarr.entrypoints=websecure
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+  radarr:
+    container_name: {{ containers.radarr.name }}
+    image: {{ containers.radarr.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/radarr:/config
+      - movies:/movies #optional
+      - downloads:/downloads #optional
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.tls.certresolver=cloudflare
+      - traefik.http.routers.radarr.rule=Host(`{{ containers.radarr.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+    networks:
+      - {{ containers.traefik.network }}
+
+  bazarr:
+    container_name: {{ containers.bazarr.name }}
+    image: {{ containers.bazarr.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/bazarr:/config
+      - movies:/movies #optional
+      - shows:/tv #optional
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bazarr.tls=true
+      - traefik.http.routers.bazarr.tls.certresolver=cloudflare
+      - traefik.http.routers.bazarr.rule=Host(`{{ containers.bazarr.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.bazarr.entrypoints=websecure
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+    networks:
+      - {{ containers.traefik.network }}
+
+  jellyseerr:
+    container_name: {{ containers.jellyseer.name }}
+    image: {{ containers.jellyseer.image }}
+    environment:
+      - LOG_LEVEL=debug
+      - TZ={{ timezone }}
+    volumes:
+      - {{ docker_volume_dir }}/jellyseer:/app/config
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyseer.tls=true
+      - traefik.http.routers.jellyseer.tls.certresolver=cloudflare
+      - traefik.http.routers.jellyseer.rule=Host(`{{ containers.jellyseer.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.jellyseer.entrypoints=websecure
+      - traefik.http.services.jellyseer.loadbalancer.server.port=5055
+    networks:
+      - {{ containers.traefik.network }}
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  downloads:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_downloads_dir }}"
+  movies:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_movies_dir }}"
+  shows:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_shows_dir }}"

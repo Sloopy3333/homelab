@@ -1,0 +1,42 @@
+#cloud-config
+ssh_pwauth: true
+#preserve_hostname: false
+#prefer_fqdn_over_hostname: false
+timezone: Asia/Kolkata
+
+rh_subscription:
+    activation-key: {{ redhat_activation_key }}
+    org: {{ redhat_orgid }}
+    auto-attach: true
+
+users:
+  - default
+  - name: {{ ci_user }}
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys: 
+      - {{ ci_public_ssh_key }}
+    lock_passwd: false
+    passwd: {{ ci_password }}
+
+packages:
+  - qemu-guest-agent
+  - vim
+  - sudo
+  - gnupg
+
+runcmd:
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, enable, qemu-guest-agent ]
+  - [ systemctl, start, --no-block, qemu-guest-agent ]
+
+network:
+version: 1
+config:
+    - type: physical
+      name: eth0
+      subnets:
+      - type: dhcp4
+    - type: nameserver
+      address:
+      - 192.168.1.1

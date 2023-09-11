@@ -1,0 +1,15 @@
+[Unit]
+Description=traefik proxy
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+Restart=always
+User={{ traefik_user }}
+Group={{ traefik_user }}
+Environment=CF_API_EMAIL={{ cf_api_email }} 
+Environment=CF_API_KEY={{ cf_api_key }}
+ExecStart={{ traefik_binary_dest}}/traefik --configfile={{ traefik_config_file }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+version: {{ docker_compose_version }}
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    user: '0'
+    ports:
+      - '3000:3000'
+    # adding the mount volume point which we create earlier
+    volumes:
+      - {{ docker_volume_dir }}/grafana:/var/lib/grafana

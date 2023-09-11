@@ -1,0 +1,12 @@
+---
+# tasks file for roles/homepage
+
+- name: copy homepage config
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{docker_volume_dir}}/homepage/{{ item }}"
+  become: true
+  with_items: 
+    - settings.yaml
+    - services.yaml
+    - widgets.yaml

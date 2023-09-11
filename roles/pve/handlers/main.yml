@@ -1,0 +1,23 @@
+---
+# handlers file for roles/pve
+
+- name: Dist upgrade
+  apt:
+    upgrade: dist
+  listen:
+    - dist upgrade
+
+- name: Update grub
+  shell:
+    cmd: "update-grub"
+  listen: update grub
+
+- name: update initramfs
+  shell:
+    cmd: "update-initramfs -u -k all"
+  listen: update Initramfs
+
+- name: Reboot host
+  reboot:
+    reboot_timeout: 60
+  listen: reboot

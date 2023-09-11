@@ -1,0 +1,74 @@
+---
+# tasks file for pibound
+
+- name: Create Pihole directory
+  ansible.builtin.file:
+    path: /etc/pihole
+    state: directory
+  become: true
+
+- name: Copy Pihole config
+  template:
+    src: ./templates/setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+  become: true
+
+- name: Install pihole
+  shell:
+    cmd: "curl -L https://install.pi-hole.net | sudo bash /dev/stdin --unattended"
+    creates: /usr/local/bin/pihole
+  become: true
+
+- name: Get avilable addlist
+  shell: 
+    cmd: pihole-FTL /etc/pihole/gravity.db "select address from adlist ;"
+  register: available_addlist
+  changed_when: false
+
+- name: Insert Addlist 
+  shell:
+    cmd:  pihole-FTL /etc/pihole/gravity.db "INSERT OR IGNORE INTO adlist (address, enabled) VALUES ('{{ item }}', 1);"
+  become: true
+  with_items: "{{ add_blocklist }}"
+  when:  "item  not in available_addlist.stdout | split('\n')"
+  register: addlist_updated
+
+- name: Update gravitydb
+  shell:
+    cmd: "pihole -g"
+  become: true
+  when: addlist_updated.changed
+
+- name: Install unbound
+  package:
+    name: unbound
+    state: present
+  become: true
+
+- name: Copy unbound config
+  template:
+    src: ./templates/pihole-unbound.conf.j2
+    dest: /etc/unbound/unbound.conf.d/pi-hole.conf
+  notify:
+    - restart unbound
+  become: true
+
+- name: Enable unbound service
+  service:
+    name: unbound
+    state: started
+    enabled: true
+  become: true
+
+- name: Create wildcard dns file
+  file:
+    path: /etc/dnsmasq.d/02-wildcard.conf
+    state: touch
+    
+  become: true
+
+- name: Copy wildcard dns file
+  template:
+    src: 02-wildcard.conf.j2
+    dest: /etc/dnsmasq.d/02-wildcard.conf
+  become: true

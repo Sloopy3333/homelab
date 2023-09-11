@@ -1,0 +1,40 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  transmission:
+    container_name: {{ containers.transmission.name }}
+    image: {{ containers.transmission.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+    volumes:
+      - {{ docker_volume_dir }}/transmission:/config
+      - downloads:/downloads
+      - share:/mnt/share
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.transmission.tls=true
+      - traefik.http.routers.transmission.tls.certresolver=cloudflare
+      - traefik.http.routers.transmission.rule=Host(`{{ containers.transmission.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.transmission.entrypoints=websecure
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true
+
+volumes: 
+  downloads:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_downloads_dir }}"
+  share:
+    driver_opts:
+      type: "nfs"
+      o: "addr={{ nfs_server_address }},nolock,soft,rw"
+      device: ":{{ nfs_share_dir }}"

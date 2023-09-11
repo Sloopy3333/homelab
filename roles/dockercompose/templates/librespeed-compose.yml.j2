@@ -1,0 +1,28 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  librespeed:
+    container_name: {{ containers.librespeed.name }}
+    image: {{ containers.librespeed.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - PASSWORD={{ generic_password }}
+      - DB_TYPE=sqlite
+    volumes:
+      - {{ docker_volume_dir }}/librespeed:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.librespeed.tls=true
+      - traefik.http.routers.librespeed.tls.certresolver=cloudflare
+      - traefik.http.routers.librespeed.rule=Host(`{{ containers.librespeed.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.librespeed.entrypoints=websecure
+      - traefik.http.services.librespeed.loadbalancer.server.port=80
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

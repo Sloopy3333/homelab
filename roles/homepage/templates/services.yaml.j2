@@ -1,0 +1,112 @@
+- Management:
+    - Proxmox:
+        href: https://pve.{{ local_subdomain }}
+        description: Proxmox hypervisor
+        icon: proxmox.png
+        widget:
+            type: proxmox
+            url: https://pve.{{ local_subdomain }}
+            username: "{{ pve_api_user }}!{{ pve_api_id }}"
+            password: {{ pve_api_secret }}
+            node: pve 
+
+    - TrueNAS:
+        href: https://truenas.{{ local_subdomain }}
+        description: TrueNAS Scale storage server
+        icon: truenas.png
+        widget:
+            type: truenas
+            url: https://truenas.{{ local_subdomain }}
+            key: {{ truenas_api_secret }}
+
+    - Portainer:
+        href: https://portainer.{{ local_subdomain }}
+        description: Docker container management
+        icon: portainer.png
+        widget:
+            type: portainer
+            url: https://portainer.{{ local_subdomain }}
+            env: 2
+            key: {{ portainer_api_secret }}
+
+- Networking:
+    - Pihole:
+        href: https://pihole.{{ local_subdomain }}
+        description: DNS and add blocking
+        icon: pi-hole.png
+    - Traefik:
+        href: https://traefik.{{ local_subdomain }}
+        description: Reverse proxy
+        icon: traefik.png
+    - Router:
+        href: https://gateway.{{ local_subdomain }}
+        description: Internet router
+        icon: router.png
+
+- Cloud:
+    - Nextcloud:
+        href: https://nextcloud.{{ local_subdomain }}
+        description: Nextcloud server
+        icon: nextcloud.png
+    - Vaultwarden:
+        href: https://vaultwarden.{{ local_subdomain }}
+        description: Password manager
+        icon: bitwarden.png
+    - Microbin:
+        href: https://microbin.{{ local_subdomain }}
+        description: Pastebin service
+        icon: microbin.png
+    - Searx:
+        href: https://searx.{{ local_subdomain }}
+        description: Search engine
+        icon: searx.png
+    - Actual:
+        href: https://actual.{{ local_subdomain }}
+        description: Finance management
+        icon: actual.png
+
+- Devops:
+    - Gitea:
+        href: https://gitea.{{ local_subdomain }}
+        description: Git repository
+        icon: gitea.png
+    - Code:
+        href: https://code.{{ local_subdomain }}
+        description: Code editor
+        icon: vscode.png
+
+- Filesharing:
+    - Qbittorrent:
+        href: https://qbittorrent.{{ local_subdomain }}
+        description: Peer file sharing
+        icon: qbittorrent.png
+    - Pyload:
+        href: https://pyload.{{ local_subdomain }}
+        description: Download manager
+        icon: pyload.png
+    - Prowlarr:
+        href: https://prowlarr.{{ local_subdomain }}
+        description: Indexer
+        icon: prowlarr.png
+
+- Media:
+    - Jellyfin:
+        href: https://jellyfin.{{ local_subdomain }}
+        description: Media player
+        icon: jellyfin.png
+    - Jellyseerr:
+        href: https://jellyseer.{{ local_subdomain }}
+        description: Media requester
+        icon: jellyseerr.png
+    - Sonarr:
+        href: https://sonarr.{{ local_subdomain }}
+        description: Shows manager
+        icon: sonarr.png
+    - Radarr:
+        href: https://radarr.{{ local_subdomain }}
+        description: Movies manager
+        icon: radarr.png
+    - Bazarr:
+        href: https://bazarr.{{ local_subdomain }}
+        description: Subtitle manager
+        icon: bazarr.png

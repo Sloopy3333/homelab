@@ -1,0 +1,94 @@
+http:
+  routers:
+
+    gateway:
+      entrypoints:
+        - websecure
+      service: gateway
+      rule: "Host(`gateway.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    pve:
+      entrypoints:
+        - websecure
+      service: pve
+      rule: "Host(`pve.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    truenas:
+      entrypoints:
+        - websecure
+      service: truenas
+      rule: "Host(`truenas.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    pihole:
+      entrypoints:
+        - websecure
+      service: pihole
+      rule: "Host(`pihole.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+      middlewares:
+        - pihole-redirectregex
+        - pihole-addprefix
+      
+    grafana:
+      entrypoints:
+        - websecure
+      service: grafana
+      rule: "Host(`grafana.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+
+    influx:
+      entrypoints:
+        - websecure
+      service: influx
+      rule: "Host(`influx.{{ local_subdomain }}`)"
+      tls:
+        certResolver: {{ traefik_resolver_name }}
+  services:
+
+    gateway:
+      loadBalancer:
+          servers:
+            - url: "https://10.1.3.1"
+            
+    pve:
+      loadBalancer:
+          servers:
+            - url: "https://10.1.3.2:8006"
+
+    truenas:
+      loadBalancer:
+          servers:
+            - url: "http://{{ hostvars[groups['nas'][0]]['proxmox_agent_interfaces'][2]['ip-addresses'][0] | ansible.utils.ipv4('address') }}"
+
+    pihole:
+      loadBalancer:
+          servers:
+            - url: "http://{{ hostvars[groups['dns'][0]]['proxmox_agent_interfaces'][2]['ip-addresses'][0] | ansible.utils.ipv4('address') }}"
+
+    grafana:
+      loadBalancer:
+          servers:
+            - url: "http://{{ hostvars[groups['watcher'][0]]['proxmox_agent_interfaces'][2]['ip-addresses'][0] | ansible.utils.ipv4('address') }}:3000"
+
+    influx:
+      loadBalancer:
+          servers:
+            - url: "http://{{ hostvars[groups['watcher'][0]]['proxmox_agent_interfaces'][2]['ip-addresses'][0] | ansible.utils.ipv4('address') }}:8086"
+  middlewares:
+
+    pihole-addprefix:
+      addPrefix:
+        prefix: /admin
+
+    pihole-redirectregex:
+      redirectRegex:
+        regex: /admin/$
+        replacement: /     

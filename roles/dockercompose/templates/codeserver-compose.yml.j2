@@ -1,0 +1,28 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  code:
+    container_name: {{ containers.code.name }}
+    image: {{ containers.code.image }}
+    environment:
+      - TZ={{ timezone }}
+      - PUID={{ uid }}
+      - PGID={{ gid }}
+      - DEFAULT_WORKSPACE=/config/workspace
+      - PASSWORD={{ generic_password }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.code.name }}:/config
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.code.tls=true
+      - traefik.http.routers.code.tls.certresolver=cloudflare
+      - traefik.http.routers.code.rule=Host(`{{ containers.code.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.code.entrypoints=websecure
+      - traefik.http.services.code.loadbalancer.server.port=3000
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

@@ -1,0 +1,19 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  nginx-proxy:
+    container_name: {{ containers.nginxproxy.name }}
+    image: {{ containers.nginxproxy.image }}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.nginxproxy.name }}:/config
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

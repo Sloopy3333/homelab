@@ -1,0 +1,26 @@
+plugin: community.general.proxmox
+url: https://10.1.3.2:8006
+user: root@pam
+token_id: iac
+token_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33333965333966303462343730623366373736613335663839353564363135616138316461303731
+          3338386132316165616236376163356466656636643931360a663064343438343937353731383461
+          34313265616338666463393365373235313939633037363335386239633831653735626364326236
+          3837613031373030660a656561333934353164623839313835376639636435316364616264393239
+          39323935356662373662383566636564326236633366373336633264323031626363313466623034
+          6436653434633363613361366232396161373732366135633766
+validate_certs: false
+want_facts: true
+want_proxmox_nodes_ansible_host: false
+compose:
+  ansible_host: proxmox_ipconfig0.ip | default(proxmox_net0.ip) | ipaddr('address')
+  ansible_user: "{{ ci_user }}"
+  ansible_ssh_private_key_file: tmp/privatekey
+groups:
+  nas: "'nas' in (proxmox_tags_parsed|list)"
+  dns: "'dns' in (proxmox_tags_parsed|list)"
+  proxy: "'proxy' in (proxmox_tags_parsed|list)"
+  services: "'services' in (proxmox_tags_parsed|list)"
+  watcher: "'watcher' in (proxmox_tags_parsed|list)"
+  telegraf: "'telegraf' in (proxmox_tags_parsed|list)"

@@ -1,0 +1,22 @@
+version: "{{ docker_compose_version }}"
+
+services:
+  searx:
+    container_name: {{ containers.searx.name }}
+    image: {{ containers.searx.image }}
+    volumes:
+      - {{ docker_volume_dir }}/{{ containers.searx.name }}:/etc/searx
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.searx.tls=true
+      - traefik.http.routers.searx.tls.certresolver=cloudflare
+      - traefik.http.routers.searx.rule=Host(`{{ containers.searx.name }}.{{ local_subdomain }}`)
+      - traefik.http.routers.searx.entrypoints=websecure
+      - traefik.http.services.searx.loadbalancer.server.port=8080
+    networks:
+      - {{ containers.traefik.network }}
+    restart: unless-stopped
+
+networks:
+  {{ containers.traefik.network }}:
+    external: true

@@ -1,0 +1,11 @@
+---
+# vars file for roles/telegraf
+telegraf_version: "1.27.4"
+telegraf_dependencies:
+  - apt-transport-https
+  - adduser
+  - ca-certificates
+  - libfontconfig
+  - gnupg2
+
+telegraf_deb_url: "https://dl.influxdata.com/telegraf/releases/telegraf_{{ telegraf_version }}-1_amd64.deb"
