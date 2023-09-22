@@ -1,0 +1,47 @@
+- name: Setup Ansible node
+  hosts: localhost
+  tasks: 
+    - name: Copy Ansible ssh private key to project
+      copy:
+        dest: tmp/privatekey
+        content: "{{ ci_private_ssh_key }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0600
+
+    - name: Copy Ansible ssh private key to controller node
+      copy:
+        dest: "/home/{{ ansible_user }}/.ssh/lab"
+        content: "{{ ci_private_ssh_key }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: 0600
+
+    - name: Create ssh config on controller node
+      copy:
+        dest: "/home/{{ ansible_user }}/.ssh/config"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        content: |
+          Host pve
+            HostName 10.1.3.2
+            User root
+            IdentityFile /home/{{ ansible_user }}/.ssh/lab
+          Host nas
+            HostName {{ hostvars[groups['nas'][0]]['proxmox_agent_interfaces'][1]['ip-addresses'][0] | ansible.utils.ipv4('address') }} 
+            User "{{ ci_user }}"
+            IdentityFile /home/{{ ansible_user }}/.ssh/lab
+          Host dns
+            HostName {{ hostvars[groups['dns'][0]]['proxmox_agent_interfaces'][1]['ip-addresses'][0] | ansible.utils.ipv4('address') }}
+            User "{{ ci_user }}"
+            IdentityFile /home/{{ ansible_user }}/.ssh/lab
+          Host services
+            HostName {{ hostvars[groups['services'][0]]['proxmox_agent_interfaces'][1]['ip-addresses'][0] | ansible.utils.ipv4('address') }}
+            User "{{ ci_user }}"
+            IdentityFile /home/{{ ansible_user }}/.ssh/lab
+          Host watcher
+            HostName {{ hostvars[groups['watcher'][0]]['proxmox_agent_interfaces'][1]['ip-addresses'][0] | ansible.utils.ipv4('address') }}
+            User "{{ ci_user }}"
+            IdentityFile /home/{{ ansible_user }}/.ssh/lab
+
+
